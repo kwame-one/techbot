@@ -17,8 +17,8 @@ class CreateCurrentIndexesTable extends Migration
             $table->bigIncrements('id');
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->unsignedBigInteger('question_id')->nullable();
-            $table->foreign('question_id')->references('id')->on('questions')->onDelete('set null');
+            $table->unsignedInteger('question_id');
+            $table->foreign('question_id')->references('number')->on('questions')->onDelete('cascade');
         });
     }
 
