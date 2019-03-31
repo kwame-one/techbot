@@ -5,7 +5,6 @@ namespace App;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use App\CurrentIndex;
 
 class User extends Authenticatable
 {
@@ -17,7 +16,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'contact', 'question_index'
+        'name', 'contact'
     ];
 
     /**
@@ -38,7 +37,4 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function questionIndex() {
-        return $this->hasOne(CurrentIndex::class, 'user_id');
-    }
 }

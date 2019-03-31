@@ -15,10 +15,9 @@ class CreateCurrentIndexesTable extends Migration
     {
         Schema::create('current_indexes', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->unsignedInteger('question_id');
-            $table->foreign('question_id')->references('number')->on('questions')->onDelete('cascade');
+            $table->string('contact');
+            $table->unsignedInteger('question_id')->default(1)->nullable();
+            $table->foreign('question_id')->references('number')->on('questions')->onDelete('set null');
         });
     }
 

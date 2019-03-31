@@ -10,5 +10,5 @@ class CurrentIndex extends Model
 
     public $timestamps = false;
 
-    protected $fillable = ['user_id', 'question_id'];
+    protected $fillable = ['contact', 'question_id'];
 }
