@@ -13,6 +13,8 @@ class BotController
 {
     protected $data;
     protected $response;
+    protected $greetings = ['yo', 'hello', 'hi', 'xup', 'sup', 'hey', 'heya'];
+
 
     public function __construct($data) {
         $this->response = new Twiml;
@@ -24,6 +26,10 @@ class BotController
         if(!$this->checkAuth() && $this->getQuestionIndex() == null){
             $this->setUserCurrentQuestion();
             $this->sendMessage($this->getQuestion(1));
+        }else if($this->checkAuth() && in_array(strtolower($this->data['Body']), $this->greetings)) {
+            $this->setUserCurrentQuestion(2);
+            $nextQuestion = "Hi ".$this->getUser()->name.", welcome\n".$this->template("Please select any of the options below").$this->getQuestion(2);
+            $this->sendMessage($nextQuestion);
         }else{
             $index = $this->getQuestionIndex();
             $this->compute($index, $this->data['Body']);
@@ -93,11 +99,11 @@ class BotController
             if ($index == 1) {
                 User::create(['name' => $body, 'contact' => $this->getContact()]);
                 $questionId = $this->setUserCurrentQuestion(++$index);
-                $nextQuestion = "Hi ".$this->getUser()->name.", welcome\n".$this->template().$this->getQuestion($questionId);
+                $nextQuestion = "Hi ".$this->getUser()->name.", welcome\n".$this->template("Please select any of the options below").$this->getQuestion($questionId);
             }else if($index == 2) {
                 if($body == 1){
                     $questionId = $this->setUserCurrentQuestion($this->increaseIndex());
-                    $nextQuestion = $this->template().$this->getQuestion($questionId); 
+                    $nextQuestion = $this->template("Which of the colleges do you want to visit?").$this->getQuestion($questionId); 
                 }else if($body == 2) {
                     $questionId = $this->setUserCurrentQuestion($this->increaseIndex(2));
                     $nextQuestion = $this->template().$this->getQuestion($questionId); 
@@ -125,13 +131,14 @@ class BotController
             return true;
         $input = $this->data['Body'];
         $options = Question::where('number', $index)->first()->options_num;
-        if($input < 1 and $input > $options)
+        if($input >= 1 and $input <= $options)
             return true;
         return false; 
     }
 
 
-    function template() {
+    function template($msg) {
+        return "*$msg*\n";
         return "*Please select any of the options below*\n";
     }
 
