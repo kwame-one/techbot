@@ -8,12 +8,15 @@ use Log;
 use Twilio\Twiml;
 use App\Question;
 Use App\CurrentIndex;
+use App\Hall;
+use App\College;
+use App\OtherPlace;
 
 class BotController
 {
     protected $data;
     protected $response;
-    protected $greetings = ['yo', 'hello', 'hi', 'xup', 'sup', 'hey', 'heya'];
+    protected $greetings = ['yo', 'hello', 'hi', 'xup', 'sup', 'hey', 'heya', "what's up"];
 
 
     public function __construct($data) {
@@ -91,6 +94,13 @@ class BotController
         return $current;
     }
 
+    function decreaseIndex($decrement=1) {
+        $current = $this->getQuestionIndex() == null ? 0 : $this->getQuestionIndex();
+        for($i=1; $i<=$decrement; $i++)
+            $current = $current - 1;
+        return $current;
+    }
+
     function compute($index, $body) {
         $nextQuestion = "";
         $questionId = "";
@@ -106,17 +116,29 @@ class BotController
                     $nextQuestion = $this->template("Which of the colleges do you want to visit?").$this->getQuestion($questionId); 
                 }else if($body == 2) {
                     $questionId = $this->setUserCurrentQuestion($this->increaseIndex(2));
-                    $nextQuestion = $this->template().$this->getQuestion($questionId); 
+                    $nextQuestion = $this->template("Which of the halls/hostels do you want to visit?").$this->getQuestion($questionId); 
                 }else if($body == 3){
                     $questionId = $this->setUserCurrentQuestion($this->increaseIndex(3));
-                    $nextQuestion = $this->template().$this->getQuestion($questionId); 
+                    $nextQuestion = $this->template("Which of the places do you want to visit?").$this->getQuestion($questionId); 
                 }
             }else if($index == 3) {
-
+                if($body == Question::where('number', $index)->first()->options_num){
+                    $questionId = $this->setUserCurrentQuestion($this->decreaseIndex());
+                    $nextQuestion = $this->template("Please select any of the options below").$this->getQuestion($questionId);
+                }else
+                    $nextQuestion = $this->getCollegeMapUrl($body);
             }else if($index == 4) {
-
+                 if($body == Question::where('number', $index)->first()->options_num){
+                    $questionId = $this->setUserCurrentQuestion($this->decreaseIndex(2));
+                    $nextQuestion = $this->template("Please select any of the options below").$this->getQuestion($questionId);
+                }else
+                    $nextQuestion = $this->getHallMapUrl($body);
             }else if($index == 5) {
-
+                 if($body == Question::where('number', $index)->first()->options_num){
+                    $questionId = $this->setUserCurrentQuestion($this->decreaseIndex(3));
+                    $nextQuestion = $this->template("Please select any of the options below").$this->getQuestion($questionId);
+                }else
+                    $nextQuestion = $this->getOtherPlaceMapUrl($body);
             }
         }else{ 
             $options = Question::where('number', $index)->first()->options_num;
@@ -127,6 +149,8 @@ class BotController
     }
 
     function isInputValid($index) {
+        if(preg_match('/[a-z\s]/i',$index))
+            return false;
         if($index == 1)
             return true;
         $input = $this->data['Body'];
@@ -134,6 +158,22 @@ class BotController
         if($input >= 1 and $input <= $options)
             return true;
         return false; 
+    }
+
+    function getCollegeMapUrl($input) {
+        Log::info($input);
+        $college = College::find($input);
+        return "$college->name\nhttps://www.google.com/maps/dir/?api=1&destination=$college->lat,$college->lng";
+    }
+
+    function getHallMapUrl($input) {
+        $hall = Hall::find($input);
+        return "$hall->name\nhttps://www.google.com/maps/dir/?api=1&destination=$hall->lat,$hall->lng";
+    }
+
+    function getOtherPlaceMapUrl($input) {
+        $place = OtherPlace::find($input);
+        return "$place->name\nhttps://www.google.com/maps/dir/?api=1&destination=$place->lat,$place->lng";
     }
 
 

@@ -12,7 +12,7 @@ class OtherPlacesTableSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('halls')->insert([
+        DB::table('other_places')->insert([
         	['name' => 'CCB Auditorium', 'lat' => '6.675515', 'lng' => '-1.565623'],
         	['name' => 'Prempeh Library', 'lat' => '6.675093', 'lng' => '-1.572950'],
         	['name' => 'Commercial Area', 'lat' => '6.682552', 'lng' => '-1.575671'],
